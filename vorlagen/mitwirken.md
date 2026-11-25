@@ -41,8 +41,11 @@ Wer mitbauen will, sucht sich eine Aufgabe im [Board](<Board-Link>) aus:
 - **Beschreibung:** Beim Squash wird sie die Nachricht des Commits auf `main` (Einstellung des Repositorys: „Default to pull request title and description“). Sie passt deshalb bis zum Merge zum Stand: Ändert ein Push, was der Pull Request tut oder wie er geprüft wurde, ändert sie sich mit. Sie beschreibt das Ergebnis, nicht den Weg.
 - **Abschnitte der Beschreibung**, wo sie zutreffen: `## Aufgeräumt` (Pfadfinder-Regel), `## Neue Abhängigkeiten` (je Paket: wofür, warum eigener Code nicht reicht, Lizenz, wie viele Pakete es mitbringt), `## Für das Release` (was jemand beim Update wissen oder tun muss).
 - **Issues in der Beschreibung:** `Umgesetzt #…`, wenn der Pull Request das Issue fertig macht, sonst `Refs #…`. Mehrere als Liste: `Umgesetzt #12, #13`. Nie `Closes` oder `Fixes`: GitHub schlösse das Issue schon beim Merge, die Nutzer haben es aber erst mit dem Release.
-- **Vom Issue zum Release:** Das Board zieht die Karte mit, nie zurück: Issue zugewiesen oder Pull Request mit `Refs`/`Umgesetzt` geöffnet → „In Arbeit“; mit `Umgesetzt` gemergt → „Im nächsten Release“; eine fertige Version (kein Release Candidate) schließt das Issue mit Link auf das Release → „Erledigt“. Was die Automatik nicht sieht, erledigt der Skill `board-pflegen`.
 - **Commits im Pull Request:** gern im Stil von [Conventional Commits](https://www.conventionalcommits.org/de/) auf Deutsch (Empfehlung, keine Prüfung).
+
+### Vom Issue zum Release
+
+Das Board zieht die Karte mit, nie zurück: Issue zugewiesen oder Pull Request mit `Refs`/`Umgesetzt` geöffnet → „In Arbeit“; mit `Umgesetzt` gemergt → „Im nächsten Release“; eine fertige Version (kein Release Candidate) schließt das Issue mit Link auf das Release → „Erledigt“. Was die Automatik nicht sieht, erledigt der Skill `board-pflegen`.
 
 ## Mit KI-Werkzeugen
 
@@ -97,7 +100,12 @@ Jeder Pull Request mit Code bekommt vor dem Merge ein unabhängiges **TDD-Review
 2. **Nur mit rotem Test:** Nur ein Test, der auf dem Stand des Pull Requests fehlschlägt, ist ein Befund. Stil und Namen sind keiner.
 3. **Red → Green:** Test und Fix als eigene Commits auf den Branch des Pull Requests. Keine Tests abschwächen, keine Commits von Beitragenden umschreiben.
 4. **Grün:** Lokal gezielt, die volle Suite in der CI. Einen Job neu starten nur bei einem erkannten Fehler der Infrastruktur, höchstens einmal.
-5. **Runden:** eine; eine zweite nur, wenn die erste Fixes am Code gebracht hat. Höchstens vier, und weitere nur nach einem schweren Befund.
+
+### Runden
+
+Eine; eine zweite nur, wenn die erste Fixes am Code gebracht hat. Höchstens vier, und weitere nur nach einem schweren Befund.
+
+### Doku-Prüfung
 
 Für Markdown gibt es keinen roten Test: Ein Befund braucht ein Zitat und den Beleg dagegen (Code, Quelle, andere Stelle). Geprüft wird, ob es stimmt, kurz ist und jede Regel nur an einem Ort steht.
 
