@@ -24,16 +24,16 @@ Vor jedem Push dieselben Prüfungen wie in der CI; die Befehle stehen im Skill [
 - **Änderungen am Aussehen** mit Screenshots vorher und nachher in der Beschreibung; die Bilder für „vorher“ entstehen vor der ersten Änderung.
 - Projekt: <weitere Regeln, etwa Texte der Oberfläche in beiden Sprachen>
 
-## Etwas übernehmen
+## Etwas übernehmen { #etwas-uebernehmen }
 
 Wer mitbauen will, sucht sich eine Aufgabe im [Board](<Board-Link>) aus:
 
 1. **Aussuchen:** eine Karte aus „Geplant“, am liebsten weit oben, denn die Reihenfolge ist die Priorität. Für den Einstieg eignen sich Issues mit dem Label `einstieg`. Ein Vorschlag ohne Issue bekommt zuerst ein Issue.
 2. **Übernehmen:** im Issue eine Zeile `/übernehmen` kommentieren, gern mit einem kurzen Plan darunter. Der Workflow „Übernehmen“ weist dir das Issue zu, schiebt die Karte nach „In Arbeit“ und bestätigt es im Issue; Schreibrecht brauchst du dafür nicht. Er lehnt mit Begründung ab, wenn das Issue schon vergeben ist, noch keine Karte hat oder schon umgesetzt ist.
 3. **Nachfragen und Freigeben:** Kommt 14 Tage lang weder ein Pull Request mit `Refs` oder `Umgesetzt` noch ein Kommentar von dir, fragt der Workflow im Issue nach; kommt danach sieben Tage nichts, hebt er die Zuweisung auf, und die Karte geht zurück nach „Geplant“. Wer aufhören will, kommentiert `/freigeben`.
-4. **Bauen:** wie im Folgenden beschrieben, mit `Umgesetzt #…` in der Beschreibung und vor „Ready for review“ mit der [Selbstprüfung](#beiträge-annehmen).
+4. **Bauen:** wie im Folgenden beschrieben, mit `Umgesetzt #…` in der Beschreibung und vor „Ready for review“ mit der [Selbstprüfung](#beitraege-annehmen).
 
-## Branches, Titel und Commits
+## Branches, Titel und Commits { #branches }
 
 - **Branch:** Wer Schreibrecht hat, legt den Branch im Repository an, alle anderen in ihrem Fork. Direkt auf `main` wird nicht gepusht, außer zur Reparatur eines roten `main` ([Wer mergt was](#wer-mergt-was)). Vor jedem Push prüfen, ob der Pull Request des Branches noch offen ist; ist er gemergt, neu von `origin/main`.
 - **Entwurf:** Ein Pull Request bleibt Entwurf, solange noch an ihm gearbeitet wird. Commits sammeln und gemeinsam pushen; die Runner teilt sich die ganze Organisation.
@@ -43,17 +43,17 @@ Wer mitbauen will, sucht sich eine Aufgabe im [Board](<Board-Link>) aus:
 - **Issues in der Beschreibung:** `Umgesetzt #…`, wenn der Pull Request das Issue fertig macht, sonst `Refs #…`. Mehrere als Liste: `Umgesetzt #12, #13`. Nie `Closes` oder `Fixes`: GitHub schlösse das Issue schon beim Merge, die Nutzer haben es aber erst mit dem Release.
 - **Commits im Pull Request:** gern im Stil von [Conventional Commits](https://www.conventionalcommits.org/de/) auf Deutsch (Empfehlung, keine Prüfung).
 
-### Vom Issue zum Release
+### Vom Issue zum Release { #vom-issue-zum-release }
 
 Das Board zieht die Karte mit, nie zurück: Issue zugewiesen oder Pull Request mit `Refs`/`Umgesetzt` geöffnet → „In Arbeit“; mit `Umgesetzt` gemergt → „Im nächsten Release“; eine fertige Version (kein Release Candidate) schließt das Issue mit Link auf das Release → „Erledigt“. Was die Automatik nicht sieht, erledigt der Skill `board-pflegen`.
 
-## Mit KI-Werkzeugen
+## Mit KI-Werkzeugen { #ki-werkzeuge }
 
 Mit KI-Agenten zu arbeiten ist ausdrücklich in Ordnung, mit jedem Werkzeug. Der Transparenz halber wird es gekennzeichnet: im Commit mit `Co-Authored-By: <Werkzeug oder Modell> <Adresse>`, in der Beschreibung mit einer Zeile wie „🤖 Generated with <Werkzeug>“. Verantwortlich für den Inhalt bleibt, wer den Pull Request einreicht.
 
 Die Regeln für Agenten stehen in [`AGENTS.md`](../AGENTS.md), die Schritte für wiederkehrende Aufgaben in den Skills unter `.agents/skills/`. Die meisten davon kommen aus der [Werkbank](https://github.com/Speicherstadt/werkbank) und sind in allen Projekten gleich; Änderungen daran gehören dorthin.
 
-## Automatische Prüfungen der Regeln
+## Automatische Prüfungen der Regeln { #automatische-pruefungen }
 
 Der Workflow „PR-Regeln“ aus der Werkbank prüft jeden Pull Request, auch Entwürfe, und schreibt das Ergebnis als einen Kommentar, der sich mit jedem Push ändert. Eingestellt wird er in `.github/werkbank.json`.
 
@@ -71,17 +71,17 @@ Der Workflow „PR-Regeln“ aus der Werkbank prüft jeden Pull Request, auch En
 
 Vor dem Push meldet `bun <werkbank>/werkzeug/pr-regeln/pruefen.ts --titel "…" --beschreibung <datei>` dasselbe in unter einer Sekunde (Skill `beitrag`).
 
-### Wenn eine Prüfung anschlägt
+### Wenn eine Prüfung anschlägt { #wenn-eine-pruefung-anschlaegt }
 
 Titel, Issue-Verweise und Abhängigkeiten sagen in der Meldung selbst, was zu tun ist. Eine neue oder über die Grenze gewachsene Funktion wird vor dem Merge geteilt; ein Grund in der Beschreibung reicht dort nicht. Bei den übrigen Hinweisen (Code ohne Doku, Fix ohne Test, große Datei, lange Seite): beheben, oder der Grund steht in der Beschreibung.
 
-## Issues schreiben
+## Issues schreiben { #issues-schreiben }
 
 Ein Issue behandelt ein Thema und passt auf ein bis zwei Bildschirme. Fragen gehören in die Discussions, bestätigte Fehler und konkrete Wünsche in Issues; sie kommen ins Board. Größere Vorhaben und Issues von Agenten gliedern sich in **Anlass**, **Stand** (auf dem aktuellen `main` geprüft, mit Links), **Vorschlag** (mit Grenzen), **Akzeptanzkriterien** (drei bis sechs prüfbare Punkte als `- [ ]`) und **Bezug** (verwandte Issues, Quellen). Agenten legen Issues nur auf Anweisung an; die Schritte stehen im Skill `issue-schreiben`.
 
 Labels: der Typ (`fehler`, `wunsch`, `frage`, `technik`, `doku`) und `einstieg` für Kleines und Abgegrenztes. Projekt: <Themen-Labels>
 
-## Beiträge annehmen
+## Beiträge annehmen { #beitraege-annehmen }
 
 Bevor ein Pull Request ins [Review](#review) geht, egal von wem, beantwortet jemand, der ihn nicht geschrieben hat, vier Fragen, jede mit Beleg (Stelle im Diff, Satz aus der Quelle, Regel):
 
@@ -92,7 +92,7 @@ Bevor ein Pull Request ins [Review](#review) geht, egal von wem, beantwortet jem
 
 **Selbstprüfung:** Beitragende beantworten die vier Fragen vor „Ready for review“ selbst (Skill `beitrag-pruefen`), in einem frischen Agenten oder durch jemand anderen, und posten das Ergebnis als Kommentar. Danach bringen sie auch das unabhängige Review mit. Bei Beitragenden ohne Schreibrecht prüfen wir erst, wenn beides vorliegt. Alle offenen Pull Requests nacheinander arbeitet der Skill `prs-abarbeiten` ab.
 
-## Review
+## Review { #review }
 
 Jeder Pull Request mit Code bekommt vor dem Merge ein unabhängiges **TDD-Review** (Skill `tdd-review`), jeder mit Markdown eine **Doku-Prüfung** (Skill `doku-pruefen`); bei beidem laufen beide nebeneinander.
 
@@ -101,15 +101,15 @@ Jeder Pull Request mit Code bekommt vor dem Merge ein unabhängiges **TDD-Review
 3. **Red → Green:** Test und Fix als eigene Commits auf den Branch des Pull Requests. Keine Tests abschwächen, keine Commits von Beitragenden umschreiben.
 4. **Grün:** Lokal gezielt, die volle Suite in der CI. Einen Job neu starten nur bei einem erkannten Fehler der Infrastruktur, höchstens einmal.
 
-### Runden
+### Runden { #runden }
 
 Eine; eine zweite nur, wenn die erste Fixes am Code gebracht hat. Höchstens vier, und weitere nur nach einem schweren Befund.
 
-### Doku-Prüfung
+### Doku-Prüfung { #doku-pruefung }
 
 Für Markdown gibt es keinen roten Test: Ein Befund braucht ein Zitat und den Beleg dagegen (Code, Quelle, andere Stelle). Geprüft wird, ob es stimmt, kurz ist und jede Regel nur an einem Ort steht.
 
-### Wer mergt was
+### Wer mergt was { #wer-mergt-was }
 
 | Änderung | Gemergt wird |
 | --- | --- |
