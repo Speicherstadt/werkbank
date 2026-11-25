@@ -1,0 +1,46 @@
+# Wiederverwendbar: schließt beim Release einer fertigen Version alle Issues, die seit der vorigen fertigen Version
+# mit `Umgesetzt #…` gemergt wurden, mit einem Kommentar (werkzeug/board/release.ts). Ein Release Candidate
+# (v1.2.0-rc.1) schließt nichts. Aufruf aus dem Release-Workflow des Projekts, siehe vorlagen/workflows/release-issues.yml.
+name: Issues schließen
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        description: "Tag des Releases, etwa v1.2.0"
+        type: string
+        required: true
+      werkbank-ref:
+        type: string
+        default: main
+      probe:
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  schliessen:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: read
+    steps:
+      # Alle Tags und Commits, um die vorige fertige Version und die Commits dazwischen zu finden
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/checkout@v7
+        with:
+          repository: Speicherstadt/werkbank
+          ref: ${{ inputs.werkbank-ref }}
+          path: .werkbank
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: .werkbank/package.json
+      - run: bun .werkbank/werkzeug/board/release.ts "$TAG" ${{ inputs.probe && '--probe' || '' }}
+        env:
+          TAG: ${{ inputs.tag }}
+          GITHUB_TOKEN: ${{ github.token }}

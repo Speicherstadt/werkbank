@@ -1,0 +1,23 @@
+# Schiebt Karten im Board (board in .github/werkbank.json), aus der Werkbank. Secret PROJECT_TOKEN: klassisches
+# Token mit Scope `project`; ohne es endet der Lauf mit einem Hinweis.
+name: Board
+
+on:
+  issues:
+    types: [assigned]
+  pull_request_target:
+    types: [opened, reopened, ready_for_review, edited, closed]
+
+permissions:
+  contents: read
+
+# Je Issue bzw. PR nacheinander, damit zwei Ereignisse dieselbe Karte nicht gleichzeitig setzen
+concurrency:
+  group: board-${{ github.event.issue.number || github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  board:
+    uses: Speicherstadt/werkbank/.github/workflows/board.yml@main
+    secrets:
+      PROJECT_TOKEN: ${{ secrets.PROJECT_TOKEN }}

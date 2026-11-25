@@ -1,0 +1,29 @@
+# `/übernehmen` und `/freigeben` in Issues, tägliche Erinnerung, aus der Werkbank. Secret PROJECT_TOKEN wie bei „Board“.
+name: Übernehmen
+
+on:
+  issue_comment:
+    types: [created]
+  schedule:
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+    inputs:
+      probe:
+        description: "Nur anzeigen, was die Erinnerung tun würde"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  uebernehmen:
+    uses: Speicherstadt/werkbank/.github/workflows/uebernehmen.yml@main
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: read
+    with:
+      probe: ${{ github.event_name == 'workflow_dispatch' && inputs.probe }}
+    secrets:
+      PROJECT_TOKEN: ${{ secrets.PROJECT_TOKEN }}

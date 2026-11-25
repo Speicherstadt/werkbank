@@ -1,0 +1,51 @@
+# Wiederverwendbar: prüft Regeln am Pull Request selbst (werkzeug/pr-regeln) und die Skills (werkzeug/skills) im
+# Repository, das aufruft. Titel „Bereich: was sich ändert (#Issue)“; Hinweise auf Code ohne Doku, Fix ohne Test,
+# lange Funktionen, neue Abhängigkeiten (ohne Begründung Fehler) und, bei fremden Pull Requests, auf Selbstprüfung
+# und Review. Einstellungen aus .github/werkbank.json des Projekts. Den Kommentar im Pull Request schreibt danach
+# pr-regeln-kommentar.yml aus dem Artefakt. Aufruf: vorlagen/workflows/pr-regeln.yml.
+name: PR-Regeln
+
+on:
+  workflow_call:
+    inputs:
+      werkbank-ref:
+        description: "Stand der Werkbank, aus dem die Werkzeuge kommen; derselbe wie hinter @ im Aufruf"
+        type: string
+        default: main
+
+permissions:
+  contents: read
+
+jobs:
+  pr-regeln:
+    runs-on: ubuntu-latest
+    steps:
+      # Code des Pull Requests mit Leserecht; Basis und Kopf für git log und git diff
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/checkout@v7
+        with:
+          repository: Speicherstadt/werkbank
+          ref: ${{ inputs.werkbank-ref }}
+          path: .werkbank
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: .werkbank/package.json
+      # oxc-parser und @firsttris/checks für den Hinweis auf lange Funktionen
+      # Ohne --frozen-lockfile, bis bun.lock im Repository liegt (README, „Noch offen“)
+      - run: bun install
+        working-directory: .werkbank
+      - run: bun .werkbank/werkzeug/pr-regeln/pruefen.ts
+        env:
+          PR_REGELN_ERGEBNIS: ${{ runner.temp }}/pr-regeln-ergebnis
+      - run: bun .werkbank/werkzeug/skills/pruefen.ts
+        if: always()
+      # Auch nach einem Fehler, damit der Kommentar ihn nennt
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: pr-regeln-ergebnis
+          path: ${{ runner.temp }}/pr-regeln-ergebnis/ergebnis.json
+          if-no-files-found: ignore
+          retention-days: 3

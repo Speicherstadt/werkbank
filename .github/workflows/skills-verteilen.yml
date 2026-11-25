@@ -1,0 +1,35 @@
+# Bringt die Skills aus skills/ per Pull Request in die Projekte aus verteilung.json (werkzeug/skills/verteilen.ts).
+# Secret SKILLS_TOKEN: Token mit Schreibrecht auf Inhalte und Pull Requests der Projekte; ohne es endet der Lauf
+# mit einem Hinweis.
+name: Skills verteilen
+
+on:
+  push:
+    branches: [main]
+    paths: [skills/**, verteilung.json]
+  workflow_dispatch:
+    inputs:
+      probe:
+        description: "Nur anzeigen, was sich ändern würde"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: skills-verteilen
+  cancel-in-progress: false
+
+jobs:
+  verteilen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+      # Ohne bun install: das Skript braucht nur fetch, git und node:-Module
+      - run: bun werkzeug/skills/verteilen.ts ${{ github.event_name == 'workflow_dispatch' && inputs.probe && '--probe' || '' }}
+        env:
+          SKILLS_TOKEN: ${{ secrets.SKILLS_TOKEN }}

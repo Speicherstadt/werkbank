@@ -1,0 +1,204 @@
+import { execFileSync, spawnSync } from "node:child_process";
+import { mkdirSync, mkdtempSync, renameSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join, resolve } from "node:path";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+
+/* Lokaler Aufruf von pruefen.ts vor dem Push (Skill `beitrag`), in einem eigenen kleinen Repository mit .github/werkbank.json */
+
+const SKRIPT = resolve(__dirname, "pruefen.ts");
+let repo: string;
+
+const git = (...args: string[]) => execFileSync("git", args, { cwd: repo, stdio: "ignore" });
+const datei = (pfad: string, inhalt: string) => {
+  mkdirSync(join(repo, pfad, ".."), { recursive: true });
+  writeFileSync(join(repo, pfad), inhalt);
+};
+const pruefen = (...args: string[]) => {
+  const env = { ...process.env, GITHUB_EVENT_PATH: "", PR_REGELN_ERGEBNIS: "" };
+  const lauf = spawnSync("bun", [SKRIPT, ...args], { cwd: repo, encoding: "utf8", env });
+  return { code: lauf.status, ausgabe: lauf.stdout, fehler: lauf.stderr };
+};
+
+beforeAll(() => {
+  repo = mkdtempSync(join(tmpdir(), "pr-regeln-"));
+  git("init", "-q", "-b", "main");
+  git("config", "user.email", "test@example.invalid");
+  git("config", "user.name", "Test");
+  datei(".checks/large-files.txt", "");
+  datei(".github/werkbank.json", JSON.stringify({ grosseDateien: ".checks/large-files.txt" }));
+  git("add", ".");
+  git("commit", "-qm", "Basis");
+  git("checkout", "-qb", "thema");
+  datei("packages/core/src/neu.ts", "export const neu = 1;\n");
+  git("add", ".");
+  git("commit", "-qm", "fix: neu");
+});
+
+afterAll(() => rmSync(repo, { recursive: true, force: true }));
+
+describe("pruefen.ts lokal", () => {
+  it("meldet einen falschen Titel als Fehler und endet mit Code 1", () => {
+    const { code, ausgabe } = pruefen("--basis", "main", "--titel", "feat: neu");
+    expect(code).toBe(1);
+    expect(ausgabe).toMatch(/^Fehler: Titel „feat: neu“: Conventional Commits/m);
+  });
+
+  it("prüft die Beschreibung aus der Datei", () => {
+    datei("beschreibung.md", "Closes #12\n");
+    const { code, ausgabe } = pruefen("--basis", "main", "--titel", "Kern: neue Konstante", "--beschreibung", "beschreibung.md");
+    expect(code).toBe(1);
+    expect(ausgabe).toMatch(/^Fehler: Beschreibung: „Closes #12“/m);
+  });
+
+  it("gibt Hinweise ohne Fehler aus und nennt den nicht geprüften Titel", () => {
+    const { code, ausgabe } = pruefen("--basis", "main");
+    expect(code).toBe(0);
+    expect(ausgabe).toMatch(/^Hinweis: Code geändert, aber nichts in docs\//m);
+    expect(ausgabe).toMatch(/^Hinweis: fix-Commit ohne geänderten Test/m);
+    expect(ausgabe).toContain("Ohne --titel");
+    expect(ausgabe).not.toContain("::");
+  });
+
+  it("erinnert lokal nicht an Selbstprüfung und Review", () => {
+    expect(pruefen("--basis", "main", "--titel", "Kern: neue Konstante").ausgabe).not.toContain("beitrag-pruefen");
+  });
+});
+
+describe("pruefen.ts: lange Seiten der Doku", () => {
+  const woerter = (n: number) => `${"wort ".repeat(n)}\n`;
+
+  beforeAll(() => {
+    git("checkout", "-q", "main");
+    datei("docs/lang.md", woerter(9000));
+    datei("docs/alt.md", woerter(9000));
+    git("add", ".");
+    git("commit", "-qm", "Doku");
+    git("checkout", "-qb", "doku");
+  });
+
+  it("weist auf eine Seite hin, die über 8.000 Wörter wächst", () => {
+    datei("docs/neu.md", woerter(8100));
+    git("add", ".");
+    git("commit", "-qm", "Doku: neue Seite");
+    expect(pruefen("--basis", "main").ausgabe).toMatch(/^Hinweis: docs\/neu\.md hat 8100 Wörter/m);
+  });
+
+  it("schweigt bei einer umbenannten langen Seite, die kaum wächst", () => {
+    git("mv", "docs/alt.md", "docs/umbenannt.md");
+    datei("docs/umbenannt.md", woerter(9010));
+    git("add", ".");
+    git("commit", "-qm", "Doku: Seite umbenannt");
+    expect(pruefen("--basis", "main").ausgabe).not.toContain("docs/umbenannt.md");
+  });
+});
+
+describe("pruefen.ts: mehrere umbenannte Seiten", () => {
+  // eigener Inhalt je Seite, sonst paart git gleiche Seiten beliebig
+  const woerter = (n: number, wort: string) => `${`${wort} `.repeat(n)}\n`;
+
+  beforeAll(() => {
+    git("checkout", "-q", "main");
+    datei("docs/mit leer.md", woerter(9000, "leer"));
+    datei("docs/eins.md", woerter(9000, "eins"));
+    datei("docs/zwei.md", woerter(9000, "zwei"));
+    git("add", ".");
+    git("commit", "-qm", "Doku Randfälle");
+    git("checkout", "-qb", "randfaelle");
+  });
+
+  it("schweigt bei Umbenennung einer Seite mit Leerzeichen und bei mehreren Umbenennungen", () => {
+    git("mv", "docs/mit leer.md", "docs/ohne-leer.md");
+    git("mv", "docs/eins.md", "docs/einsb.md");
+    git("mv", "docs/zwei.md", "docs/zweib.md");
+    git("commit", "-qm", "Doku: mehrere");
+    const { ausgabe } = pruefen("--basis", "main");
+    expect(ausgabe).not.toMatch(/docs\/(ohne-leer|einsb|zweib)\.md hat/);
+  });
+});
+
+describe("pruefen.ts: lange Funktionen", () => {
+  const funktion = (name: string, zeilen: number) =>
+    `export function ${name}() {\n${Array.from({ length: zeilen }, (_, i) => `  const v${i} = ${i};\n`).join("")}}\n`;
+
+  beforeAll(() => {
+    git("checkout", "-q", "main");
+    datei("scripts/x/alt.ts", funktion("alt", 100));
+    git("add", ".");
+    git("commit", "-qm", "Code");
+    git("checkout", "-qb", "funktionen");
+  });
+
+  it("weist auf eine neue lange Funktion hin, nicht auf eine alte in einer umbenannten Datei", () => {
+    git("mv", "scripts/x/alt.ts", "scripts/x/umbenannt.ts");
+    datei("scripts/x/neu.ts", funktion("neu", 90));
+    git("add", ".");
+    git("commit", "-qm", "Code: neue Funktion");
+    const { code, ausgabe } = pruefen("--basis", "main");
+    expect(code).toBe(0);
+    expect(ausgabe).toMatch(/^Hinweis: scripts\/x\/neu\.ts: Funktion „neu“ ist neu mit 90 Zeilen/m);
+    expect(ausgabe).not.toContain("umbenannt.ts");
+  });
+});
+
+describe("pruefen.ts: neue Abhängigkeiten", () => {
+  beforeAll(() => {
+    git("checkout", "-q", "main");
+    datei("apps/web/package.json", `${JSON.stringify({ name: "@haben/web", dependencies: { zod: "^4" } })}\n`);
+    git("add", ".");
+    git("commit", "-qm", "Paket");
+    git("checkout", "-qb", "abhaengigkeiten");
+    datei("apps/web/package.json", `${JSON.stringify({ name: "@haben/web", dependencies: { zod: "^4", "left-pad": "^1" } })}\n`);
+    git("add", ".");
+    git("commit", "-qm", "feat: left-pad");
+  });
+
+  it("warnt und hält den Pull Request ohne Begründung auf", () => {
+    datei("ohne.md", "Umgesetzt #1\n");
+    const { code, ausgabe } = pruefen("--basis", "main", "--titel", "Web: Einrückung (#1)", "--beschreibung", "ohne.md");
+    expect(code).toBe(1);
+    expect(ausgabe).toMatch(/^Hinweis: Neue Abhängigkeit: `left-pad` \(apps\/web\/package\.json, dependencies\)/m);
+    expect(ausgabe).toMatch(/^Fehler: Begründung fehlt für `left-pad`/m);
+  });
+
+  it("verlangt lokal ohne --titel keine Begründung, wie bei Titel und Beschreibung", () => {
+    const { code, ausgabe } = pruefen("--basis", "main");
+    expect(code).toBe(0);
+    expect(ausgabe).toMatch(/^Hinweis: Neue Abhängigkeit: `left-pad`/m);
+    expect(ausgabe).not.toContain("Begründung fehlt");
+  });
+
+  it("lässt ihn mit Begründung durch, die Warnung bleibt", () => {
+    datei("mit.md", "Umgesetzt #1\n\n## Neue Abhängigkeiten\n\n- `left-pad`: weil …\n");
+    const { code, ausgabe } = pruefen("--basis", "main", "--titel", "Web: Einrückung (#1)", "--beschreibung", "mit.md");
+    expect(code).toBe(0);
+    expect(ausgabe).toMatch(/^Hinweis: Neue Abhängigkeit: `left-pad`/m);
+  });
+});
+
+describe("pruefen.ts ohne Liste der alten großen Dateien", () => {
+  it("bricht ab, wenn die Konfiguration die Liste nennt und sie fehlt, statt keine gewachsene Datei zu melden", () => {
+    const liste = join(repo, ".checks/large-files.txt");
+    renameSync(liste, `${liste}.weg`);
+    try {
+      const { code, ausgabe, fehler } = pruefen("--basis", "main");
+      expect(code).toBe(1);
+      expect(fehler).toContain(".checks/large-files.txt not found");
+      expect(ausgabe).not.toContain("PR-Regeln: alles in Ordnung");
+    } finally {
+      renameSync(`${liste}.weg`, liste);
+    }
+  });
+
+  it("braucht keine Liste, wenn die Konfiguration keine nennt", () => {
+    const konfiguration = join(repo, ".github/werkbank.json");
+    renameSync(konfiguration, `${konfiguration}.weg`);
+    try {
+      const { code, fehler } = pruefen("--basis", "main");
+      expect(code).toBe(0);
+      expect(fehler).toBe("");
+    } finally {
+      renameSync(`${konfiguration}.weg`, konfiguration);
+    }
+  });
+});

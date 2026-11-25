@@ -1,0 +1,21 @@
+# Schreibt das Ergebnis von „PR-Regeln“ als Kommentar in den Pull Request, aus der Werkbank.
+name: PR-Regeln Kommentar
+
+on:
+  workflow_run:
+    workflows: [PR-Regeln]
+    types: [completed]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-regeln-kommentar-${{ github.event.workflow_run.head_sha }}
+  cancel-in-progress: true
+
+jobs:
+  kommentar:
+    uses: Speicherstadt/werkbank/.github/workflows/pr-regeln-kommentar.yml@main
+    permissions:
+      actions: read
+      pull-requests: write

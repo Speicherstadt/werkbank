@@ -1,0 +1,79 @@
+# Wiederverwendbar: Karten übernehmen und freigeben („Etwas übernehmen“ in docs/mitwirken.md des Projekts):
+# - `/übernehmen` in einem Issue-Kommentar weist das Issue der Person zu und schiebt die Karte nach „In Arbeit“,
+#   `/freigeben` hebt die Zuweisung auf (werkzeug/board/befehl.ts, Regeln in werkzeug/board/uebernahme.ts).
+# - Täglich: Erinnerung nach 14 Tagen ohne Pull Request und ohne Kommentar, Freigabe sieben Tage danach
+#   (werkzeug/board/erinnerung.ts).
+# Eine Zuweisung mit GITHUB_TOKEN startet den Workflow „Board“ nicht; die Skripte schieben die Karte deshalb selbst.
+# Ausgecheckt wird nur die Basis, vom Kommentar liest das Skript nur den Text. Aufruf: vorlagen/workflows/uebernehmen.yml.
+name: Übernehmen
+
+on:
+  workflow_call:
+    inputs:
+      werkbank-ref:
+        type: string
+        default: main
+      probe:
+        description: "Nur anzeigen, was die Erinnerung tun würde"
+        type: boolean
+        default: false
+    secrets:
+      PROJECT_TOKEN:
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  befehl:
+    if: >-
+      github.event_name == 'issue_comment' && !github.event.issue.pull_request &&
+      (contains(github.event.comment.body, '/übernehmen') || contains(github.event.comment.body, '/uebernehmen') ||
+      contains(github.event.comment.body, '/freigeben'))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    # Dieselbe Gruppe wie im Workflow „Board“ des Projekts: Ereignisse zu einer Karte laufen nacheinander
+    concurrency:
+      group: board-${{ github.event.issue.number }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7
+        with:
+          repository: Speicherstadt/werkbank
+          ref: ${{ inputs.werkbank-ref }}
+          path: .werkbank
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: .werkbank/package.json
+      - run: bun .werkbank/werkzeug/board/befehl.ts
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PROJECT_TOKEN: ${{ secrets.PROJECT_TOKEN }}
+
+  erinnerung:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: read
+    concurrency:
+      group: erinnerung
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7
+        with:
+          repository: Speicherstadt/werkbank
+          ref: ${{ inputs.werkbank-ref }}
+          path: .werkbank
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: .werkbank/package.json
+      - run: bun .werkbank/werkzeug/board/erinnerung.ts ${{ inputs.probe && '--probe' || '' }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PROJECT_TOKEN: ${{ secrets.PROJECT_TOKEN }}

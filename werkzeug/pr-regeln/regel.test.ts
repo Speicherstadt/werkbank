@@ -1,0 +1,284 @@
+import { describe, expect, it } from "vitest";
+import { HABEN } from "../testkonfiguration.ts";
+import {
+  checkBody,
+  checkTitle,
+  checkTitleIssues,
+  countWords,
+  docPageHints,
+  grownOldFiles,
+  growthHints,
+  heikelHint,
+  hints,
+  isBot,
+  reviewHint,
+} from "./regel.ts";
+
+describe("checkTitle", () => {
+  it.each([
+    "Belege: Gestaltung in Vorschau und Einstellungen (#113)",
+    "E-Rechnung: Artikelnummer in der Position, im PDF und als BT-155 (#388)",
+    "ELSTER: ERiC auf arm64 über einen Worker-Befehl unter QEMU",
+    "Doku-Bilder: Daten für die Bilder legt der Doku-Test selbst an",
+    "Lohn und Gehalt: Bescheinigung 2026",
+    "sevDesk: Belege mit Anhängen übernehmen",
+  ])("lässt „%s“ durch", (title) => {
+    expect(checkTitle(title)).toEqual([]);
+  });
+
+  it.each([
+    "Aktualisieren von README.md",
+    "Entwürfe als PDF mit Vermerk ENTWURF über jeder Seite",
+    "app.spec.ts aufteilen: drei Durchläufe",
+    "Belege:ohne Leerzeichen",
+    "Belege: ",
+  ])("meldet „%s“", (title) => {
+    expect(checkTitle(title)).toHaveLength(1);
+  });
+
+  it("erklärt bei Conventional Commits im Titel den Unterschied", () => {
+    const [report] = checkTitle("docs: Dokumentation mit Zensical bauen");
+    expect(report.message).toContain("Conventional Commits gelten für Commits");
+  });
+
+  it("meldet einen Punkt am Ende", () => {
+    expect(checkTitle("Bank: Umsätze abrufen.")[0].message).toContain("ohne Punkt");
+  });
+});
+
+describe("hints", () => {
+  it("weist auf Code ohne Doku hin", () => {
+    const reports = hints(["apps/web/src/server/modules/bank/bank.ts"], ["feat(bank): x"], HABEN);
+    expect(reports.map((r) => r.message)).toEqual([expect.stringContaining("nichts in docs/")]);
+    // Das Firmenportal (#504) ist Code wie die App
+    expect(hints(["apps/firmenportal/src/server.ts"], ["feat(portal): x"], HABEN).map((r) => r.message)).toEqual([expect.stringContaining("nichts in docs/")]);
+  });
+
+  it("schweigt, wenn die Doku mitkommt oder nur Tests geändert sind", () => {
+    expect(hints(["packages/core/src/ust.ts", "docs/umsatzsteuer.md"], ["feat: x"], HABEN)).toEqual([]);
+    expect(hints(["packages/core/src/ust.test.ts"], ["test: x"], HABEN)).toEqual([]);
+  });
+
+  it("weist auf einen fix-Commit ohne Test hin", () => {
+    const reports = hints(["docs/bank.md"], ["fix(bank): Datum"], HABEN);
+    expect(reports.map((r) => r.message)).toEqual([expect.stringContaining("Bugfix beginnt mit einem Test")]);
+    expect(hints(["apps/web/e2e/bank.spec.ts", "docs/bank.md"], ["fix(bank): Datum"], HABEN)).toEqual([]);
+  });
+});
+
+describe("grownOldFiles", () => {
+  it("nennt nur alte Dateien, die gewachsen sind", () => {
+    const before = { "alt.ts": 900, "andere.ts": 500, "neu-klein.ts": 10 };
+    const after = { "alt.ts": 901, "andere.ts": 480, "neu-klein.ts": 20 };
+    expect(grownOldFiles(before, after, ["alt.ts", "andere.ts"])).toEqual([{ file: "alt.ts", before: 900, after: 901 }]);
+  });
+
+  it("übergeht alte Dateien, die vorher oder nachher fehlen", () => {
+    expect(grownOldFiles({}, { "alt.ts": 900 }, ["alt.ts"])).toEqual([]);
+  });
+});
+
+describe("growthHints", () => {
+  it("weist auf deutlich gewachsene alte Dateien hin, nur als Warnung", () => {
+    expect(growthHints([{ file: "apps/web/src/routes/_app/bank.tsx", before: 1513, after: 1561 }], HABEN)).toEqual([
+      { level: "warning", message: expect.stringContaining("von 1513 auf 1561 Zeilen") },
+    ]);
+  });
+
+  it("schweigt bei kleinem Wachstum und bei schema.ts, die wachsen muss", () => {
+    expect(
+      growthHints(
+        [
+          { file: "apps/web/src/routes/_app/bank.tsx", before: 1513, after: 1532 },
+          { file: "apps/web/src/server/db/schema.ts", before: 2879, after: 3002 },
+        ],
+        HABEN,
+      ),
+    ).toEqual([]);
+  });
+});
+
+describe("docPageHints", () => {
+  it("weist auf eine Doku-Seite hin, die über die Grenze wächst, auch auf eine neue", () => {
+    expect(
+      docPageHints(
+        [
+          { file: "docs/belege.md", before: 7900, after: 8100 },
+          { file: "docs/neu.md", before: 0, after: 8001 },
+        ],
+        HABEN,
+      ),
+    ).toEqual([
+      { level: "warning", message: expect.stringContaining("docs/belege.md hat 8100 Wörter") },
+      { level: "warning", message: expect.stringContaining("docs/neu.md hat 8001 Wörter") },
+    ]);
+  });
+
+  it("weist auf eine lange Seite hin, die noch deutlich wächst", () => {
+    expect(docPageHints([{ file: "docs/rechnungen.md", before: 9800, after: 10_100 }], HABEN)).toEqual([
+      { level: "warning", message: expect.stringContaining("docs/rechnungen.md hat 10100 Wörter") },
+    ]);
+  });
+
+  it("schweigt bei kurzen Seiten, kleinen Änderungen an langen Seiten, Seiten außerhalb docs/ und ADRs", () => {
+    expect(
+      docPageHints(
+        [
+          { file: "docs/fristen.md", before: 1500, after: 1800 },
+          { file: "docs/rechnungen.md", before: 9800, after: 9950 },
+          { file: "README.md", before: 7000, after: 9000 },
+          { file: "docs/adr/journal-als-quelle.md", before: 7000, after: 9000 },
+        ],
+        HABEN,
+      ),
+    ).toEqual([]);
+  });
+});
+
+describe("countWords", () => {
+  it("zählt Wörter wie wc -w", () => {
+    expect(countWords("# Titel\n\nEin  kurzer\tSatz.\n")).toBe(5);
+    expect(countWords("")).toBe(0);
+  });
+});
+
+describe("isBot", () => {
+  it("erkennt Renovate und andere Bots", () => {
+    expect(isBot({ login: "renovate[bot]", type: "Bot" })).toBe(true);
+    expect(isBot({ login: "renovate[bot]" })).toBe(true);
+    expect(isBot({ login: "Dudeplayz", type: "User" })).toBe(false);
+  });
+});
+
+describe("checkBody", () => {
+  it("lässt Refs und Umgesetzt durch", () => {
+    expect(checkBody("Refs #12\n\nUmgesetzt #13")).toEqual([]);
+    expect(checkBody(null)).toEqual([]);
+  });
+
+  it("meldet Closes und Fixes als Fehler, weil sie schon beim Merge schließen", () => {
+    const reports = checkBody("Closes #12\nfixes #13");
+    expect(reports).toHaveLength(2);
+    expect(reports.every(({ level }) => level === "error")).toBe(true);
+    expect(reports[0].message).toContain("Umgesetzt #");
+  });
+
+  it("lässt Beispiele in Code durch", () => {
+    expect(checkBody("Nicht `Closes #12`, sondern Umgesetzt #12")).toEqual([]);
+  });
+});
+
+describe("checkTitleIssues", () => {
+  it("meldet ein umgesetztes Issue, das im Titel fehlt, als Fehler", () => {
+    const reports = checkTitleIssues("Mahnung: Vorschau des Blatts", "Umgesetzt #357");
+    expect(reports).toHaveLength(1);
+    expect(reports[0]).toMatchObject({ level: "error" });
+    expect(reports[0].message).toContain("(#357)");
+  });
+
+  it("meldet Refs ohne Nummer im Titel nur als Hinweis, weil Refs auch auf Pull Requests zeigt (#954)", () => {
+    const reports = checkTitleIssues("Mahnung: Vorschau des Blatts wie bei Rechnung und Angebot", "Refs #357");
+    expect(reports).toHaveLength(1);
+    expect(reports[0]).toMatchObject({ level: "warning" });
+    expect(reports[0].message).toContain("#357");
+  });
+
+  it("lässt Titel durch, die jede Nummer nennen, auch als Liste", () => {
+    expect(checkTitleIssues("Mahnung: Vorschau (#357)", "Refs #357")).toEqual([]);
+    expect(checkTitleIssues("Finanzamt: Zeitraum einheitlich (#968, #969)", "Umgesetzt #968, #969")).toEqual([]);
+  });
+
+  it("nennt nur die fehlenden Nummern, getrennt nach Fehler und Hinweis", () => {
+    const reports = checkTitleIssues("Finanzamt: Zeitraum einheitlich (#968)", "Umgesetzt #968, #970\nRefs #969");
+    expect(reports.map(({ level }) => level)).toEqual(["error", "warning"]);
+    expect(reports[0].message).toContain("#970");
+    expect(reports[0].message).not.toContain("#968");
+    expect(reports[1].message).toContain("#969");
+  });
+
+  it("schweigt ohne Verweise, bei leerer Beschreibung, bei Beispielen in Code und in HTML-Kommentaren", () => {
+    expect(checkTitleIssues("Doku: Tippfehler", "Kein Issue.")).toEqual([]);
+    expect(checkTitleIssues("Doku: Tippfehler", null)).toEqual([]);
+    expect(checkTitleIssues("Doku: Tippfehler", "Etwa `Umgesetzt #12` im Text")).toEqual([]);
+    expect(checkTitleIssues("Doku: Tippfehler", "<!-- Umgesetzt #12 -->")).toEqual([]);
+  });
+
+  it("zählt im Titel nur eigene Nummern, nicht #35 für #357 und nicht owner/repo#12 oder Anker", () => {
+    expect(checkTitleIssues("Mahnung: Vorschau (#357)", "Umgesetzt #35")).toHaveLength(1);
+    expect(checkTitleIssues("Bilder: aus Speicherstadt/haben-bilder#12", "Umgesetzt #12")).toHaveLength(1);
+    expect(checkTitleIssues("Doku: Link auf mitwirken.html#12", "Umgesetzt #12")).toHaveLength(1);
+  });
+});
+
+describe("reviewHint", () => {
+  const fremd = { draft: false, author_association: "CONTRIBUTOR", user: { login: "TheLord83", type: "User" } };
+
+  it("erinnert bei einem fremden Pull Request mit Code an beitrag-pruefen und tdd-review", () => {
+    const [report] = reviewHint(fremd, ["apps/web/src/server/modules/bank/index.ts"]);
+    expect(report.level).toBe("warning");
+    expect(report.message).toContain("`beitrag-pruefen`");
+    expect(report.message).toContain("`tdd-review`");
+    expect(report.message).not.toContain("`doku-pruefen`");
+  });
+
+  it("nennt bei Code und Markdown tdd-review und doku-pruefen nebeneinander (tdd-review, Schritt 0)", () => {
+    const [report] = reviewHint(fremd, ["apps/web/src/server/modules/bank/index.ts", "docs/bank.md"]);
+    expect(report.message).toContain("`tdd-review`");
+    expect(report.message).toContain("`doku-pruefen`");
+  });
+
+  it("nennt doku-pruefen auch bei Code und LICENSE, wie bei LICENSE allein", () => {
+    const [report] = reviewHint(fremd, ["apps/web/src/server/modules/bank/index.ts", "LICENSE"]);
+    expect(report.message).toContain("`tdd-review`");
+    expect(report.message).toContain("`doku-pruefen`");
+  });
+
+  it("nennt doku-pruefen, wenn nur Markdown, docs/ oder LICENSE geändert sind", () => {
+    const [report] = reviewHint({ ...fremd, author_association: "FIRST_TIME_CONTRIBUTOR" }, ["docs/ki-assistenten.md", "README.md"]);
+    expect(report.message).toContain("`beitrag-pruefen`");
+    expect(report.message).toContain("`doku-pruefen`");
+    expect(report.message).not.toContain("`tdd-review`");
+  });
+
+  it("nennt doku-pruefen auch für eine neue Doku-Seite mit Eintrag in mkdocs.yml (Grenze aus tdd-review, Schritt 0)", () => {
+    const [report] = reviewHint(fremd, ["docs/neue-seite.md", "mkdocs.yml"]);
+    expect(report.message).toContain("`doku-pruefen`");
+    expect(report.message).not.toContain("`tdd-review`");
+  });
+
+  it.each(["OWNER", "MEMBER", "COLLABORATOR"])("schweigt bei %s", (author_association) => {
+    expect(reviewHint({ ...fremd, author_association }, ["docs/bank.md"])).toEqual([]);
+  });
+
+  it("schweigt bei Entwürfen und Bots", () => {
+    expect(reviewHint({ ...fremd, draft: true }, ["docs/bank.md"])).toEqual([]);
+    expect(reviewHint({ ...fremd, user: { login: "renovate[bot]", type: "Bot" } }, ["package.json"])).toEqual([]);
+  });
+});
+
+describe("heikelHint", () => {
+  it("weist auf Kern, ELSTER, Steuermodule und Migrationen hin", () => {
+    for (const file of [
+      "packages/core/src/ust.ts",
+      "packages/elster/src/xml.ts",
+      "packages/gobd-kern/src/kette.ts",
+      "apps/web/src/server/modules/umsatzsteuer/voranmeldung.ts",
+      "apps/web/src/server/modules/lohn/abrechnung.test.ts",
+      "apps/web/src/server/modules/koerperschaft/koerperschaft.ts",
+      "apps/web/drizzle/0200_neu.sql",
+    ]) {
+      expect(heikelHint([file], HABEN).map((r) => r.message)).toEqual([expect.stringContaining("OK“ des Maintainers")]);
+    }
+  });
+
+  it("schweigt bei Oberfläche, Doku und anderen Modulen", () => {
+    expect(
+      heikelHint(["apps/web/src/routes/bank.tsx", "packages/core/README.md", "apps/web/src/server/modules/mail/senden.ts", "docs/bank.md"], HABEN),
+    ).toEqual([]);
+  });
+
+  it("nennt höchstens drei Dateien", () => {
+    const files = ["a", "b", "c", "d", "e"].map((n) => `packages/core/src/${n}.ts`);
+    expect(heikelHint(files, HABEN)[0].message).toContain("und 2 weitere");
+  });
+});

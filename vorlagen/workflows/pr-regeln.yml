@@ -1,0 +1,19 @@
+# Regeln am Pull Request, aus der Werkbank (https://github.com/Speicherstadt/werkbank). Läuft auch für Entwürfe
+# und reine Doku-Änderungen, denn der Titel wird beim Squash-Merge zum Commit auf main. Mit pull_request, nicht
+# pull_request_target: Code aus Forks läuft nur mit Leserecht.
+name: PR-Regeln
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-regeln-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pr-regeln:
+    uses: Speicherstadt/werkbank/.github/workflows/pr-regeln.yml@main

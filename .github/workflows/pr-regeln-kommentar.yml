@@ -1,0 +1,47 @@
+# Wiederverwendbar: schreibt das Ergebnis von „PR-Regeln“ als Kommentar in den Pull Request
+# (werkzeug/pr-regeln/kommentieren.ts), einen je Pull Request, bei jedem Push geändert.
+# Der Aufruf hängt an workflow_run: Nur so darf das Token auch bei PRs aus Forks kommentieren. Sicher, weil hier
+# nur die Basis des Projekts ausgecheckt wird (für .github/werkbank.json) und vom Lauf des PR nur das Artefakt
+# kommt, das kommentieren.ts als Daten prüft. Aufruf: vorlagen/workflows/pr-regeln-kommentar.yml.
+name: PR-Regeln Kommentar
+
+on:
+  workflow_call:
+    inputs:
+      werkbank-ref:
+        type: string
+        default: main
+
+permissions:
+  contents: read
+
+jobs:
+  kommentar:
+    # Abgebrochene Läufe (ein neuer Push kam dazwischen) haben kein vollständiges Ergebnis
+    if: github.event.workflow_run.event == 'pull_request' && contains(fromJSON('["success","failure"]'), github.event.workflow_run.conclusion)
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7
+        with:
+          repository: Speicherstadt/werkbank
+          ref: ${{ inputs.werkbank-ref }}
+          path: .werkbank
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: .werkbank/package.json
+      - uses: actions/download-artifact@v8
+        with:
+          name: pr-regeln-ergebnis
+          path: ${{ runner.temp }}/pr-regeln-ergebnis
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+      # Ohne bun install: das Skript braucht nur fetch und node:-Module
+      - run: bun .werkbank/werkzeug/pr-regeln/kommentieren.ts
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          ERGEBNIS: ${{ runner.temp }}/pr-regeln-ergebnis/ergebnis.json

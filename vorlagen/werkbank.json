@@ -1,0 +1,8 @@
+{
+  "$kommentar": "Einstellungen für die Werkbank; alles hier ist optional, die Standards stehen in werkzeug/konfiguration.ts",
+  "board": { "owner": "Speicherstadt", "nummer": 0 },
+  "anleitung": "https://example.app/mitwirken.html#wenn-eine-prüfung-anschlägt",
+  "uebernehmen": "https://example.app/mitwirken.html#etwas-übernehmen",
+  "konventionen": "docs/entwicklung.md, Konventionen",
+  "heikel": []
+}

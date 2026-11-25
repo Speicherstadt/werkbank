@@ -1,0 +1,19 @@
+{
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
+  // Wie in Haben, woher die Werkzeuge stammen
+  "formatter": { "enabled": true, "indentStyle": "space", "indentWidth": 2, "lineWidth": 160, "includes": ["**/*.{ts,json,jsonc}"] },
+  "javascript": {
+    "formatter": { "quoteStyle": "double", "semicolons": "always", "trailingCommas": "all", "arrowParentheses": "always" }
+  },
+  "assist": { "enabled": false },
+  "linter": {
+    "enabled": true,
+    "includes": ["**/*.ts"],
+    "rules": {
+      "preset": "recommended",
+      "style": { "noNonNullAssertion": "off" },
+      "complexity": { "noExcessiveLinesPerFunction": { "level": "info", "options": { "maxLines": 80, "skipBlankLines": true } } }
+    }
+  }
+}

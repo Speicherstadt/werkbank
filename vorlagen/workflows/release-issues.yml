@@ -1,0 +1,12 @@
+# Ausschnitt für den Release-Workflow des Projekts: nach dem Veröffentlichen einer fertigen Version die umgesetzten
+# Issues schließen. Als eigener Job in den bestehenden Workflow kopieren, der auf Tags `v*` läuft.
+jobs:
+  issues-schliessen:
+    needs: [] # den Job eintragen, der veröffentlicht
+    uses: Speicherstadt/werkbank/.github/workflows/issues-schliessen.yml@main
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: read
+    with:
+      tag: ${{ github.ref_name }}

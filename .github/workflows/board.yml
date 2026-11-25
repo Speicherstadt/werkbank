@@ -1,0 +1,38 @@
+# Wiederverwendbar: schiebt Karten im Board des Projekts (board in .github/werkbank.json) nach
+# werkzeug/board/regel.ts: Issue zugewiesen oder PR mit `Refs #…`/`Umgesetzt #…` geöffnet → In Arbeit;
+# PR mit `Umgesetzt #…` gemergt → Im nächsten Release. Geschlossen wird beim Release (issues-schliessen.yml).
+# Der Aufruf hängt an pull_request_target, damit das Secret auch bei PRs aus Forks da ist. Sicher, weil nur die
+# Basis ausgecheckt wird und das Skript vom PR nur die Beschreibung liest, nie seinen Code.
+# Secret PROJECT_TOKEN: klassisches Token mit Scope `project`; ohne es endet der Lauf mit einem Hinweis.
+# Aufruf: vorlagen/workflows/board.yml.
+name: Board
+
+on:
+  workflow_call:
+    inputs:
+      werkbank-ref:
+        type: string
+        default: main
+    secrets:
+      PROJECT_TOKEN:
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  board:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7
+        with:
+          repository: Speicherstadt/werkbank
+          ref: ${{ inputs.werkbank-ref }}
+          path: .werkbank
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: .werkbank/package.json
+      - run: bun .werkbank/werkzeug/board/ereignis.ts
+        env:
+          PROJECT_TOKEN: ${{ secrets.PROJECT_TOKEN }}
