@@ -19,7 +19,7 @@ Vor jedem Push dieselben Prüfungen wie in der CI; die Befehle stehen im Skill [
 
 - Ein Pull Request, ein Thema; er trägt nur seine eigenen Commits.
 - **Aufräumen gehört dazu (Pfadfinder-Regel):** Was beim Arbeiten in den berührten Dateien auffällt, etwa ein wackeliger Test, eine zu lange Funktion oder toter Code, wird im selben Pull Request mit verbessert und in der Beschreibung unter „Aufgeräumt“ genannt. Das Verhalten ändert sich dabei nicht, die Tests zeigen es; ein wackeliger Test wird an der Ursache behoben, nicht abgeschwächt. Nicht über die berührten Dateien hinaus.
-- **Tests für das, was sich ändert.** Ein Bugfix beginnt mit einem Test, der fehlschlägt.
+- **Tests für das, was sich ändert.** Ein Bugfix beginnt mit einem Test, der fehlschlägt (bei unklarer Ursache Skill `fehler-eingrenzen`). Der erwartete Wert kommt aus einer Quelle, die unabhängig vom Code ist, etwa einem Beispiel aus der Norm oder einem von Hand gerechneten Fall; ein Test, der ihn genauso berechnet wie der Code, kann nie fehlschlagen.
 - **Die Doku in `docs/`**, die das Verhalten beschreibt, im selben Pull Request, kurz und für Menschen; Schritte für Agenten gehören in einen Skill, Interna eines Skripts in seine Kommentare. Das README nur, wenn ein Bereich dazukommt oder wegfällt.
 - **Änderungen am Aussehen** mit Screenshots vorher und nachher in der Beschreibung; die Bilder für „vorher“ entstehen vor der ersten Änderung.
 - Projekt: <weitere Regeln, etwa Texte der Oberfläche in beiden Sprachen>

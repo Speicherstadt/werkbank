@@ -22,6 +22,7 @@ Unabhängig ist, wer den Code nicht selbst geschrieben hat. Gemeint ist der Agen
 - Mit `git merge-tree --write-tree origin/main <branch>` prüfen, ob der Branch noch konfliktfrei auf `main` passt.
 - Gesucht werden echte Fehler: falsche Logik, Randfälle (null, leer, Grenzwerte, Vorzeichen, Stornos), Fehlerbehandlung, Race Conditions, Sicherheitslücken, Regressionen gegenüber dem bisherigen Verhalten. Auch die anderen Stellen ansehen, die die geänderten Funktionen oder Daten nutzen.
 - Fachlich besonders: die Pfade aus `heikel` in .github/werkbank.json und die Regeln in docs/mitwirken.md des Projekts; alle Varianten, die das Projekt für Tests verlangt; Schutzmechanismen, die AGENTS.md des Projekts unter den Verboten nennt. Hängt ein Detail an Recht, Norm oder Format, die Quelle nennen.
+- Tests des PR, deren erwarteter Wert genauso berechnet wird wie im Code (`expect(steuer(x)).toBe(x * satz)`), bestehen immer und belegen nichts: Für diesen Fall gilt der Verdacht als ungeprüft und bekommt in Schritt 2 einen eigenen Test.
 - Keine Anmerkungen zu Stil, Namen oder Geschmack.
 
 ## 2. Jeden Verdacht mit einem Test beweisen
@@ -30,6 +31,7 @@ Unabhängig ist, wer den Code nicht selbst geschrieben hat. Gemeint ist der Agen
   - Logik ohne Datenbank oder Netz: Unit-Test neben dem Modul.
   - Server mit Datenbank: Integrationstest neben dem Modul, gegen die Test-Datenbank. Wird er ohne Datenbank übersprungen, beweist er nichts.
   - Was ein Nutzer klickt: End-to-End-Test, nur wenn es nicht anders geht.
+- Den erwarteten Wert unabhängig vom Code ermitteln: Beispiel aus Norm, Gesetz oder Referenzimplementierung, von Hand gerechneter Fall, bekannte gute Ausgabe.
 - **Nur ein Test, der auf dem Stand des PR rot ist, ist ein Finding.**
 - Bleibt der Test grün oder lässt sich der Verdacht nicht testen, wird er verworfen (höchstens als Notiz unter „Nicht belegt“).
 

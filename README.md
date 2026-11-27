@@ -11,7 +11,7 @@ Entstanden aus [Haben](https://github.com/Speicherstadt/haben), wo der Ablauf zu
 | Board | `.github/workflows/board.yml`, `werkzeug/board/` | Karten wandern mit: zugewiesen oder PR geöffnet → „In Arbeit“, gemergt → „Im nächsten Release“ |
 | Übernehmen | `.github/workflows/uebernehmen.yml` | `/übernehmen` und `/freigeben` in Issues, Erinnerung nach 14 Tagen, Freigabe sieben Tage später |
 | Issues schließen | `.github/workflows/issues-schliessen.yml` | eine fertige Version schließt die umgesetzten Issues mit Link auf das Release |
-| Skills | `skills/`, `werkzeug/skills/` | neun allgemeine Skills; der Sync bringt sie per Pull Request nach `.agents/skills/` jedes Projekts, die Skill-Prüfung läuft in „PR-Regeln“ |
+| Skills | `skills/`, `werkzeug/skills/` | elf allgemeine Skills; der Sync bringt sie per Pull Request nach `.agents/skills/` jedes Projekts, die Skill-Prüfung läuft in „PR-Regeln“ |
 | Vorlagen | `vorlagen/` | Aufrufe der Workflows, `werkbank.json`, `AGENTS.md`, `CLAUDE.md`, `docs/mitwirken.md` |
 
 ## Warum so
