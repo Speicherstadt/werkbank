@@ -31,7 +31,7 @@ Wege dahin, ungefähr in dieser Reihenfolge:
 
 **Geht es nicht:** aufhören und sagen, was versucht wurde. Die Person um Zugang zu der Umgebung bitten, in der es auftritt, oder um ein geschwärztes Beispiel (Datei, Log, Bildschirmaufnahme mit Uhrzeit). Ohne rote Prüfung keine Vermutungen.
 
-**Fertig, wenn** der Befehl mindestens einmal gelaufen und rot geworden ist; Befehl und Ausgabe (geschwärzt) festhalten. Wer vorher Code liest, um eine Theorie zu bauen, macht genau den Fehler, den dieser Schritt verhindert.
+**Fertig, wenn** der Befehl mindestens einmal gelaufen und rot geworden ist; Befehl und Ausgabe (geschwärzt) festhalten.
 
 ## 2. Nachstellen und verkleinern
 
