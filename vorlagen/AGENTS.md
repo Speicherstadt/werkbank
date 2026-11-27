@@ -16,7 +16,9 @@ Dateien. Aus der Werkbank (gleich in allen Projekten, Änderungen dort): `beitra
 als Entwurf, dann Selbstprüfung und Review), `beitrag-pruefen` (gewollt, Quellen, einfachste Lösung, Regeln),
 `tdd-review` (unabhängiges Review, ein Befund braucht einen fehlschlagenden Test), `doku-pruefen` (Review des
 Markdowns), `fork-pushen` (Push auf den Fork einer anderen Person), `prs-abarbeiten` (alle offenen Pull Requests,
-vom einfachsten Merge an), `issue-schreiben`, `board-pflegen` (das Board auf GitHub) und `release`.
+vom einfachsten Merge an), `issue-schreiben`, `board-pflegen` (das Board auf GitHub), `release`,
+`fehler-eingrenzen` (Ursache eines Fehlers über eine rote Prüfung finden) und `vorhaben-klaeren` (einen Plan vor
+dem Bauen mit der Person durchfragen).
 Aus diesem Projekt: `checks` (alle Prüfungen) <und weitere>.
 
 ## Nie
