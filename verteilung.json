@@ -1,1 +1,12 @@
-{ "repos": ["Speicherstadt/schreibzeug", "Speicherstadt/belegt", "Speicherstadt/kontext"] }
+{
+  "repos": [
+    "Speicherstadt/schreibzeug",
+    "Speicherstadt/belegt",
+    "Speicherstadt/kontext",
+    "Speicherstadt/fixpunkt",
+    "Speicherstadt/stellwerk",
+    "Speicherstadt/soll",
+    "Speicherstadt/kennwort",
+    "Speicherstadt/steuerzentrale"
+  ]
+}
