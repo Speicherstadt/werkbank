@@ -5,7 +5,7 @@ description: "Einen Plan, Wunsch oder Entwurf in einem Projekt der Speicherstadt
 
 # Vorhaben klären
 
-Ein Pull Request kann alle Tests bestehen und trotzdem falsch sein, weil eine Annahme nie gefragt wurde. Dieser Skill fragt die Person aus, bevor gebaut wird, bis beide dasselbe meinen.
+Ein Pull Request kann alle Tests bestehen und trotzdem falsch sein, weil eine Annahme nie gefragt wurde.
 
 ## Fakten sucht der Agent, entscheiden muss die Person
 
