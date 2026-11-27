@@ -46,8 +46,11 @@ Entstanden aus [Haben](https://github.com/Speicherstadt/haben), wo der Ablauf zu
     - Secret `PROJECT_TOKEN` (klassisches Token mit Scope `project`) im Projekt oder in der Organisation.
     - In der Werkbank: Secret `SKILLS_TOKEN` (Schreibrecht auf Inhalte und Pull Requests der Projekte).
 
-Angeschlossen: [Schreibzeug](https://github.com/Speicherstadt/schreibzeug) (Pilot), [Belegt](https://github.com/Speicherstadt/belegt) und [Kontext](https://github.com/Speicherstadt/kontext). Haben folgt, wenn das zweite
-Projekt läuft.
+Angeschlossen: [Schreibzeug](https://github.com/Speicherstadt/schreibzeug) (Pilot), [Belegt](https://github.com/Speicherstadt/belegt),
+[Kontext](https://github.com/Speicherstadt/kontext), [Fixpunkt](https://github.com/Speicherstadt/fixpunkt),
+[Stellwerk](https://github.com/Speicherstadt/stellwerk), [Soll](https://github.com/Speicherstadt/soll),
+[Kennwort](https://github.com/Speicherstadt/kennwort) und [Steuerzentrale](https://github.com/Speicherstadt/steuerzentrale).
+Haben und Haben AT haben eigene, auf Haben zugeschnittene Fassungen der Skills und bleiben vorerst außerhalb des Syncs.
 
 ## Lokal vor dem Push
 
