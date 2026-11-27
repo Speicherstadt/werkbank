@@ -31,7 +31,7 @@ Unabhängig ist, wer den Code nicht selbst geschrieben hat. Gemeint ist der Agen
   - Logik ohne Datenbank oder Netz: Unit-Test neben dem Modul.
   - Server mit Datenbank: Integrationstest neben dem Modul, gegen die Test-Datenbank. Wird er ohne Datenbank übersprungen, beweist er nichts.
   - Was ein Nutzer klickt: End-to-End-Test, nur wenn es nicht anders geht.
-- Den erwarteten Wert unabhängig vom Code ermitteln: Beispiel aus Norm, Gesetz oder Referenzimplementierung, von Hand gerechneter Fall, bekannte gute Ausgabe; nie mit derselben Rechnung wie der Code.
+- Den erwarteten Wert unabhängig vom Code ermitteln: Beispiel aus Norm, Gesetz oder Referenzimplementierung, von Hand gerechneter Fall, bekannte gute Ausgabe.
 - **Nur ein Test, der auf dem Stand des PR rot ist, ist ein Finding.**
 - Bleibt der Test grün oder lässt sich der Verdacht nicht testen, wird er verworfen (höchstens als Notiz unter „Nicht belegt“).
 
