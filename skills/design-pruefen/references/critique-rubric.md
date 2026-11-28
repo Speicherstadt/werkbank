@@ -80,12 +80,12 @@ Abgeleitet aus `craft-floor.md` – prüft, ob die Oberfläche handwerklich geba
   - Typografie (Zeilenlänge ~65–75 Zeichen bei Fließtext, ausgewogene Überschriften, echte Skalen- & Gewichtsstufen, reale Texte auf allen Breakpoints).
   - Zustände (hover, disabled, loading, error, empty) und Browser-Flächen (Fokus-Ring, Scrollbar, `tabular-nums`, Auswahlfarbe, `<select>`).
   - Sprache (Produkt-Sprache, Aktionsnamen auf Knöpfen, Fehler nennen Ursache + Lösung).
-- **Refuse (generische Defaults hinterfragen, wenn das Brief sie nicht begründet):**
-  - Gleichförmige Icon+Überschrift+Text-Karten als Seitenstruktur; **verschachtelte Karten** vermeiden.
+- **Refuse (generische Defaults hinterfragen, wenn `DESIGN.md` sie nicht begründet):**
+  - **Harte Ausschlüsse:** Kicker/Eyebrows über Überschriften und **verschachtelte Karten**.
+  - Gleichförmige Icon+Überschrift+Text-Karten als Seitenstruktur; sinnlose Abschnittsnummern (`01 / 02 / 03`).
   - Generisches Hero-Metric-Template (große Zahl + kleines Label + Deko-Akzent ohne Sinn).
-  - Dekorative Kicker/Eyebrows über Überschriften und sinnlose Abschnittsnummern (`01 / 02 / 03`).
   - Modale für Aufgaben, die weder Unterbrechung noch geschützten Fokus brauchen.
-  - Verlaufs-Text, Deko-Glassmorphism/Blur, **einseitige farbige Balken** an abgerundeten Boxen ohne semantischen Auftrag, harte Block-Schatten außerhalb passender Stile, Monospace als bloßes „Tech-Kostüm“, Unicode-Emojis statt einheitlichem Icon-System.
+  - Verlaufs-Text, Deko-Glassmorphism/Blur, **einseitige farbige Balken** an abgerundeten Boxen, harte Block-Schatten außerhalb passender Stile, Monospace als bloßes „Tech-Kostüm“, Unicode-Emojis statt einheitlichem Icon-System.
 
 ## 6. Schweregrade (P0–P3)
 
