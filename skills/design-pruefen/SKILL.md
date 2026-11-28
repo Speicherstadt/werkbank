@@ -61,7 +61,7 @@ Nach dem Bericht die Befunde in **kleine, unabhängige Umsetzungspakete** schnei
 
 Erst auf Freigabe:
 - je Paket ein Issue nach Skill `issue-schreiben`;
-- je Paket ein kleiner Pull Request nach Skill `beitrag` mit Selbstprüfung (`beitrag-pruefen`), unabhängigem `tdd-review` (und `doku-pruefen`, wenn `DESIGN.md` oder `docs/` berührt sind);
+- je Paket ein kleiner Pull Request nach Skill `beitrag` mit Selbstprüfung (`beitrag-pruefen`), unabhängigem `tdd-review` (und `doku-pruefen`, wenn Markdown geändert ist);
 - nach Änderungen am Aussehen Screenshots aktualisieren und die neuen Bilder ansehen.
 
 ### Modus PR-Prüfung
