@@ -18,7 +18,7 @@ Grundlage für Sicht B in `design-pruefen` – verbindet das 5-Dimensionen-Audit
 
 ### RTL-Sonderregeln (nur bei Seiten mit `dir="rtl"` auf `<html>`/`<body>`)
 
-- Physische Richtungs-Properties (`margin-left/right`, `padding-left/right`, `text-align: left/right`, `border-left/right`) zugunsten logischer Properties (`ps-`/`pe-`, `ms-`/`me-`, `text-start`/`text-end`, `inset-inline-start/end`) prüfen – nur melden, wenn gerendert tatsächlich falsch.
+- Physische Richtungs-Properties (`margin-left/right`, `padding-left/right`, `text-align: left/right`, `border-left/right`, `left`/`right`) zugunsten logischer CSS-Properties (`margin-inline-start/end`, `padding-inline-start/end`, `text-align: start/end`, `border-inline-start/end`, `inset-inline-start/end`) prüfen – nur melden, wenn gerendert tatsächlich falsch.
 - Ausnahme: `left: 50%; transform: translateX(-50%)` ist richtungsneutral; Umstellung auf `inset-inline-start` bricht die Zentrierung.
 - Richtungs-Icons (Pfeile, Chevrons) und Kalender-Pfeiltasten auf korrekte Spiegelung prüfen; `lang` einer RTL-Sprache (`ar`, `he`, `fa`, `ur` …) ohne `dir="rtl"` melden.
 - Uhrzeiten, Zahlen, Salden und Codes mit `dir="ltr"` schützen.
