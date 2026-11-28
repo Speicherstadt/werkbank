@@ -7,7 +7,7 @@ Die Werkbank hält, was alle Projekte der Speicherstadt für ihren Ablauf zum Mi
 ## Skills
 
 Die Skills unter `skills/` sind Vorlagen, die der Sync in die Projekte kopiert; in der Werkbank selbst werden sie nur
-bearbeitet, nicht ausgeführt: `beitrag`, `beitrag-pruefen`, `tdd-review`, `doku-pruefen`, `fork-pushen`,
+bearbeitet, nicht ausgeführt: `beitrag`, `beitrag-pruefen`, `tdd-review`, `doku-pruefen`, `design-pruefen`, `fork-pushen`,
 `issue-schreiben`, `board-pflegen`, `prs-abarbeiten`, `release`, `fehler-eingrenzen`, `vorhaben-klaeren`. Sie bleiben
 allgemein: Was nur ein Projekt betrifft, gehört in dessen eigene Skills oder in `.github/werkbank.json`.
 
