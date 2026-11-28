@@ -23,7 +23,7 @@ Zwei Modi:
 
 1. **Ziel festlegen:** konkretes Projekt, Route, Komponente oder PR (`git diff --name-only origin/main...<branch>`).
 2. **Gestaltungsregeln lesen:** `DESIGN.md` (und `PRODUCT.md`/Mockup, falls vorhanden). Gewollte Abweichungen und feste Vorgaben der Oberfläche respektieren (z. B. Betriebsmodus **Operate** / **Read** / **Persuade** / **Experience** – bei Arbeitswerkzeugen zählen Präzision, Scanbarkeit und Ruhe mehr als Dekoration).
-3. **Visuelle Wahrheit prüfen:** echte Screenshots des Projekts (z. B. `docs/assets/screenshots/` in Hell/Dunkel, Desktop, Handy, Sondergrößen wie Terminal) oder laufende App im Browser betrachten. Bei PR-Prüfung Vorher/Nachher-Screenshots aus der PR-Beschreibung heranziehen.
+3. **Visuelle Wahrheit prüfen:** echte Screenshots des Projekts (z. B. `docs/assets/screenshots/` in Hell/Dunkel, Desktop, Handy, weitere Ansichtsgrößen) oder laufende App im Browser betrachten. Bei PR-Prüfung Vorher/Nachher-Screenshots aus der PR-Beschreibung heranziehen.
 4. **Vorhandene Prüfwerkzeuge mitnehmen:** gibt es im Projekt Axe-/Playwright-A11y-Tests (Skill `checks`) oder ist `impeccable detect` lokal verfügbar, diese Ergebnisse in Sicht B einbeziehen und klar nennen, was lief und was fehlte.
 
 ## 1. Zwei isolierte Sichten ausführen

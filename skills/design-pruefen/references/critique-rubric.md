@@ -6,7 +6,7 @@ Grundlage für Sicht A in `design-pruefen` – abgeleitet aus `critique.md`, `cr
 
 Der Maßstab richtet sich nach dem Zweck der konkreten Oberfläche (nicht des Gesamtprodukts):
 
-- **Operate** (App-UI, Dashboards, Formulare, Dienstplan, Einstellungen): Scanbarkeit, Konsistenz, geringe Fehlerquote und die echte Arbeitssituation stehen über Dekoration. Qualität zeigt sich in Präzision und Zurückhaltung.
+- **Operate** (App-UI, Dashboards, Editoren, Formulare, Einstellungen, Werkzeuge): Scanbarkeit, Konsistenz, geringe Fehlerquote und die echte Arbeitssituation stehen über Dekoration. Qualität zeigt sich in Präzision und Zurückhaltung.
 - **Read** (Doku, Anleitungen, Changelogs): Lesefluss, Gliederung und Typografie stehen im Vordergrund.
 - **Persuade** (Landingpage, Marketing, Preise): Klarer Standpunkt, spürbarer Nutzen, starke visuelle Führung.
 - **Experience** (Showcase, Portfolio): Das Werk führt den ersten Viewport, die Oberfläche tritt zurück.
